@@ -25,7 +25,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import submit as S  # noqa: E402
 
-IMAGE = os.environ.get("ANA_IMAGE", "ghcr.io/masoudrezaei082-afk/eralpha-antidepressant-md:ana-bfdbb707474bda5bfe9708cd5280665c0b2cbd4d")
+IMAGE = os.environ.get("ANA_IMAGE", "ghcr.io/masoudrezaei082-afk/eralpha-antidepressant-md:ana-2bd47342d0de5cf7970950627aa6338cb55c174d")
 PRIORITY = os.environ.get("ANA_PRIORITY", "medium")
 CPU, MEMORY_MB = 16, 16384
 TAGS = ("gb_eps2", "gb_eps1", "gb_eps4", "pb_eps2")

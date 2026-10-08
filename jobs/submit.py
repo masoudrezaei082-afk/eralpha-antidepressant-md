@@ -49,8 +49,10 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "jobs" / "manifest.yaml"
 SALAD = "https://api.salad.com/api/public"
-IMAGE = "ghcr.io/masoudrezaei082-afk/eralpha-antidepressant-md:2026.4-cu129-f0cf319"   # build run 37563518946
-GROUP = "eralpha-antidepressant-md-q"                # the earlier Kelpie group "eralpha-antidepressant-md" cannot take a queue connection
+# Rebuild of the production image under this repo's name; production ran
+# ghcr.io/masoudrezaei082-afk/shokouh-md:2026.4-cu129-f0cf319, identical except for install paths.
+IMAGE = "ghcr.io/masoudrezaei082-afk/eralpha-antidepressant-md:2026.4-cu129-2bd4734"
+GROUP = "eralpha-antidepressant-md-q"                # a container group connected to the job queue
 QUEUE = "eralpha-antidepressant-md"
 JOB_PORT = 8000                       # docker/job_server.py
 # Salad GPU class name prefixes, comma-separated in GPU_CLASSES. The default matches "RTX 4070 Ti" and
