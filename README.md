@@ -62,7 +62,10 @@ metrics and gmx_MMPBSA outputs).
 
 ### 1. Re-draw the figures and tables (minutes)
 
-1. Download and unpack the Zenodo record.
+1. Download the Zenodo record and unpack every archive into one folder (`tar -xzf common.tar.gz`, then
+   `tar -xf <system>.tar` for each system). `common.tar.gz` holds `inputs/`, the MM/GBSA outputs, tables and
+   clusters; each `<system>.tar` holds that system's processed trajectories and run files. Check the downloads
+   with `sha256sum -c SHA256SUMS.txt`.
 2. Copy it to your Google Drive, open [`notebooks/md_analysis.ipynb`](notebooks/md_analysis.ipynb) in Colab (a free
    CPU runtime is enough), set `DRIVE_ROOT` to that folder, and run all cells.
 
