@@ -1,0 +1,20 @@
+; Energy minimisation: solute heavy atoms restrained (1000 kJ/mol/nm2) so the docked pose is not
+; disturbed while clashes with water, ions and hydrogens relax.
+define                   = -DPOSRES -DPOSRES_FC=1000
+integrator               = steep
+emtol                    = 500.0
+emstep                   = 0.01
+nsteps                   = 50000
+constraints              = none
+; ---- shared by every stage (AMBER ff14SB / GAFF2 / TIP3P conventions) ----
+cutoff-scheme            = Verlet
+nstlist                  = 20          ; mdrun retunes this on the GPU
+pbc                      = xyz
+coulombtype              = PME
+rcoulomb                 = 1.0
+fourierspacing           = 0.12
+pme-order                = 4
+vdwtype                  = Cut-off
+vdw-modifier             = Potential-shift
+rvdw                     = 1.0
+DispCorr                 = EnerPres    ; long-range dispersion correction, as AMBER uses

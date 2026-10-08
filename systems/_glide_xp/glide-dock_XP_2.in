@@ -1,0 +1,8 @@
+AMIDE_MODE   penal
+CALC_INPUT_RMS   True
+FORCEFIELD   OPLS_2005
+GRIDFILE   /home/au661126/Desktop/Shokouh/glide-grid_1/glide-grid_1.zip
+LIGANDFILES   /home/au661126/Desktop/Shokouh/LigPrepped1/5757.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/3821_1.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/3821_2.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/3821_3.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/3821.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/60835.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/3696.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/5284627.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/3386.mae, /home/au661126/Desktop/Shokouh/LigPrepped1/65833.mae
+POSTDOCK_XP_DELE   0.5
+PRECISION   XP
+WRITE_XP_DESC   True

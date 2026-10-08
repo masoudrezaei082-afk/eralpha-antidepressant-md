@@ -1,0 +1,20 @@
+# gmx_MMPBSA 1.7 — Poisson-Boltzmann cross-check of the GB ranking, ε_in = @INTDIEL@ (run at 2 only, on
+# every 3rd frame of the GB selection: 54 frames per replica). Same frames and radii family as mmpbsa_gb.in.
+&general
+  sys_name             = "@SYSTEM@_rep@REP@_pb_eps@INTDIEL@",
+  startframe           = 2001,
+  endframe             = 10000,
+  interval             = 150,
+  temperature          = 310,
+  PBRadii              = 4,
+  keep_files           = 0,
+/
+&pb
+  istrng               = 0.15,
+  indi                 = @INTDIEL@,
+  exdi                 = 78.5,
+  inp                  = 2,          # non-polar: cavity + dispersion (Tan & Luo 2007)
+  radiopt              = 0,          # use the topology radii (mbondi3) rather than optimised PB radii
+  fillratio            = 4.0,
+  scale                = 2.0,
+/

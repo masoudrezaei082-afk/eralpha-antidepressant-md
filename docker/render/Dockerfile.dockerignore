@@ -1,0 +1,4 @@
+# Build context of docker/render/Dockerfile: the render script and its entry script only
+*
+!analysis/anim/render.py
+!docker/render/run_render.sh

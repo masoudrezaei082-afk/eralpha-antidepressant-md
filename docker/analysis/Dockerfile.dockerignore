@@ -1,0 +1,7 @@
+# Build context of docker/analysis/Dockerfile: the lock file, the analysis code and the entry script only
+*
+!docker/tools-env.lock.txt
+!docker/analysis/run_mmgbsa.sh
+!analysis/mdana/*.py
+!analysis/mmpbsa_gb.in
+!analysis/mmpbsa_pb.in

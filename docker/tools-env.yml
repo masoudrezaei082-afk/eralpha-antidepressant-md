@@ -1,0 +1,24 @@
+name: base
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - ambertools=26
+  - gromacs=2026.3        # CPU build; prep/analysis only — production uses the CUDA image
+  - parmed>=4.3
+  - pdbfixer=1.12
+  - openmm=8.6
+  - rdkit>=2025.03
+  - pdb2pqr=3.6
+  - propka=3.5
+  - acpype=2023.10.27
+  - mdanalysis
+  - numpy<2
+  - pandas>=2.2,<3
+  - scipy>=1.14,<2
+  - matplotlib>=3.8,<4
+  - seaborn>=0.13,<0.14
+  - mpi4py>=4.0.1,<5
+  - openmpi
+  - pyyaml
+  - pip

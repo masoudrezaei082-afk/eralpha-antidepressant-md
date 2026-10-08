@@ -1,0 +1,69 @@
+# Runs the pinned production image (jobs/submit.py IMAGE) on CPU through the whole replica pipeline for every
+# system in jobs/manifest.yaml, with shortened stages: EM convergence, grompp -maxwarn 0 for every stage under HMR,
+# stability, SIGKILL + resume from "Drive", and a production-length change (tests/ci_replica_test.sh). No GPU and no
+# credentials: a local folder stands in for Google Drive. The built inputs are the release asset INPUTS_TAG.
+name: validate
+
+on:
+  push:
+    branches: [main]
+    paths: [jobs/submit.py, tests/ci_replica_test.sh, .github/workflows/validate.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  INPUTS_TAG: inputs-v1
+  INPUTS_SHA256: "6ef9fbd801c172d1fad9aa544836f39db406f979ca07ccac50e8f90a3364a0d0"
+
+jobs:
+  systems:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+      image: ${{ steps.m.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: m
+        run: |
+          python3 - >> "$GITHUB_OUTPUT" <<'EOF'
+          import json, re
+          pairs = sorted(set(re.findall(r"- system: (\S+)\n\s+pose: (\S+)", open("jobs/manifest.yaml").read())))
+          print("matrix=" + json.dumps([{"system": s, "pose": p} for s, p in pairs]))
+          print("image=" + re.search(r'^IMAGE = "([^"]+)"', open("jobs/submit.py").read(), re.M).group(1))
+          EOF
+          cat "$GITHUB_OUTPUT"
+
+  replica:
+    needs: systems
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.systems.outputs.matrix) }}
+    name: ${{ matrix.system }}/${{ matrix.pose }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Built inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$INPUTS_TAG" -p builds.tar.xz
+          echo "$INPUTS_SHA256  builds.tar.xz" | sha256sum -c -
+          tar xJf builds.tar.xz
+      - name: Pull image
+        run: docker pull "${{ needs.systems.outputs.image }}"
+      - name: Pipeline on CPU, kill, resume, length change
+        run: |
+          docker run --rm -v "$PWD:/w" -w /w "${{ needs.systems.outputs.image }}" \
+            bash tests/ci_replica_test.sh "${{ matrix.system }}" "${{ matrix.pose }}" \
+            "systems/${{ matrix.system }}/${{ matrix.pose }}/build" "out/${{ matrix.system }}-${{ matrix.pose }}"
+      - if: always()
+        run: cat out/*/summary.txt >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.system }}-${{ matrix.pose }}
+          path: out/

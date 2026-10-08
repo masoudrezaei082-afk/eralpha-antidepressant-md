@@ -1,0 +1,8 @@
+AMIDE_MODE   penal
+CALC_INPUT_RMS   True
+FORCEFIELD   OPLS_2005
+GRIDFILE   /home/au661126/Desktop/Shokouh/glide-grid_1/glide-grid_1.zip
+LIGANDFILE   /home/au661126/Desktop/Shokouh/LigPrepped1/5757.mae
+POSTDOCK_XP_DELE   0.5
+PRECISION   XP
+WRITE_XP_DESC   True

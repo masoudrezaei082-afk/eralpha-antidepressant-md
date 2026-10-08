@@ -1,0 +1,37 @@
+; NVT heating to 310 K, 500 ps, solute heavy atoms restrained at 1000 kJ/mol/nm2.
+; @SEED@ is replaced per replica by run_replica.sh: each replica gets its own velocities
+; and its own thermostat noise, so replicas are independent from this stage on.
+define                   = -DPOSRES -DPOSRES_FC=1000
+integrator               = md
+dt                       = 0.002
+nsteps                   = 250000      ; 500 ps
+constraints              = h-bonds
+constraint-algorithm     = lincs
+mass-repartition-factor  = 3           ; HMR: H mass x3 (3.024 u), taken from the bonded heavy atom
+continuation             = no
+gen-vel                  = yes
+gen-temp                 = 310
+gen-seed                 = @SEED@
+ld-seed                  = @SEED@
+tcoupl                   = V-rescale
+tc-grps                  = System
+tau-t                    = 1.0
+ref-t                    = 310
+pcoupl                   = no
+comm-mode                = Linear
+nstcalcenergy            = 100
+nstenergy                = 5000
+nstlog                   = 5000
+nstxout-compressed       = 0
+; ---- shared by every stage (AMBER ff14SB / GAFF2 / TIP3P conventions) ----
+cutoff-scheme            = Verlet
+nstlist                  = 20          ; mdrun retunes this on the GPU
+pbc                      = xyz
+coulombtype              = PME
+rcoulomb                 = 1.0
+fourierspacing           = 0.12
+pme-order                = 4
+vdwtype                  = Cut-off
+vdw-modifier             = Potential-shift
+rvdw                     = 1.0
+DispCorr                 = EnerPres    ; long-range dispersion correction, as AMBER uses

@@ -1,0 +1,15 @@
+sys,label,quantity,diff,se,df,lo,hi,p
+pape1,PaPE-1,lig_rmsd,0.9993,0.133,2.868,0.5649,1.434,0.005696
+pape1,PaPE-1,retention,-0.3402,0.1394,2,-0.9397,0.2594,0.1347
+imipramine,Imipramine,lig_rmsd,3.37,0.6466,2.032,0.6291,6.111,0.03376
+imipramine,Imipramine,retention,-0.9424,0.05683,2.001,-1.187,-0.6979,0.003611
+s_ketamine,S-Ketamine,lig_rmsd,1.693,0.6953,2.027,-1.26,4.646,0.1335
+s_ketamine,S-Ketamine,retention,-0.5244,0.2565,2,-1.628,0.5793,0.1776
+hnk,"(2R,6R)-HNK",lig_rmsd,3.555,0.4519,2.065,1.668,5.441,0.01438
+hnk,"(2R,6R)-HNK",retention,-0.9992,0.0007916,2,-1.003,-0.9958,6.276e-07
+r_fluoxetine,R-Fluoxetine,lig_rmsd,0.6157,0.1235,3.021,0.2242,1.007,0.01526
+r_fluoxetine,R-Fluoxetine,retention,-0.06703,0.03916,2.002,-0.2354,0.1013,0.229
+s_fluoxetine,S-Fluoxetine,lig_rmsd,1.988,0.6769,2.029,-0.8848,4.861,0.09734
+s_fluoxetine,S-Fluoxetine,retention,-0.6168,0.09973,2,-1.046,-0.1877,0.02516
+decoy,Decoy,lig_rmsd,3.28,1.026,2.013,-1.11,7.67,0.08484
+decoy,Decoy,retention,-0.9691,0.02873,2.003,-1.093,-0.8457,0.0008699

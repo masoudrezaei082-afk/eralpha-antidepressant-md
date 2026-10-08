@@ -1,0 +1,44 @@
+system: apo
+receptor:
+  file: receptor/receptor_wt_src2.pdb
+  sha256_16: fcc067acb37fa254
+  details: receptor/receptor_prep.yaml
+force_field:
+  protein: ff14SB
+  ligand: GAFF2 + AM1-BCC
+  water: TIP3P
+  ions: Joung-Cheatham (TIP3P)
+solvation:
+  box: truncated octahedron
+  buffer_A: 12.0
+  salt: neutralised + 0.15 M NaCl
+poses:
+  apo:
+    replicas: 3
+    salt_pairs_added: 54
+    tleap_warnings:
+    - '/content/mamba/envs/tools/bin/teLeap: Warning!'
+    - 'Exiting LEaP: Errors = 0; Warnings = 1; Notes = 0.'
+    system:
+      atoms: 63456
+      waters: 19747
+      Na+: 60
+      Cl-: 54
+      net_charge: -0.0
+      box:
+        shape: truncated octahedron
+        a_A: 96.84
+        angles_deg: 109.47
+        volume_nm3: 699.1
+      index_groups:
+        System: 63456
+        Receptor: 4101
+        Complex: 4101
+        Solvent_Ions: 59355
+    grompp:
+      em:
+        warnings: 0
+        notes: 1
+      nvt:
+        warnings: 0
+        notes: 1

@@ -1,0 +1,44 @@
+; Production: 100 ns per replica at 310 K / 1 bar (default; control/prod_ns on Drive resets nsteps, see run_replica.sh).
+;   - solute (protein, SRC2 peptide, ligand, ions) every 10 ps -> traj_comp.xtc
+;   - full system (incl. water) every 2 ns -> traj.trr, for re-solvation or water analysis
+;   - checkpoints every 10 min are set on the mdrun command line (-cpt 10)
+integrator               = md
+dt                       = 0.004        ; 4 fs with HMR (mass-repartition-factor below)
+nsteps                   = 25000000     ; 100 ns
+constraints              = h-bonds
+constraint-algorithm     = lincs
+mass-repartition-factor  = 3           ; HMR: H mass x3 (3.024 u), taken from the bonded heavy atom
+continuation             = yes
+gen-vel                  = no
+ld-seed                  = @SEED@
+tcoupl                   = V-rescale
+tc-grps                  = System
+tau-t                    = 1.0
+ref-t                    = 310
+pcoupl                   = C-rescale
+pcoupltype               = isotropic
+tau-p                    = 2.0
+ref-p                    = 1.0
+compressibility          = 4.5e-5
+comm-mode                = Linear
+nstcalcenergy            = 100
+nstenergy                = 2500         ; 10 ps
+nstlog                   = 25000        ; 100 ps
+nstxout                  = 500000       ; 2 ns, full system
+nstvout                  = 0
+nstfout                  = 0
+nstxout-compressed       = 2500         ; 10 ps
+compressed-x-grps        = Complex                  ; receptor + peptide + ligand (index.ndx from build_system.py)
+compressed-x-precision   = 1000
+; ---- shared by every stage (AMBER ff14SB / GAFF2 / TIP3P conventions) ----
+cutoff-scheme            = Verlet
+nstlist                  = 20          ; mdrun retunes this on the GPU
+pbc                      = xyz
+coulombtype              = PME
+rcoulomb                 = 1.0
+fourierspacing           = 0.12
+pme-order                = 4
+vdwtype                  = Cut-off
+vdw-modifier             = Potential-shift
+rvdw                     = 1.0
+DispCorr                 = EnerPres    ; long-range dispersion correction, as AMBER uses

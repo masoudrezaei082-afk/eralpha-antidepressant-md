@@ -1,0 +1,19 @@
+# CPU image for system preparation and post-processing (no GPU needed).
+#   prep:     PDBFixer, PROPKA/pdb2pqr, RDKit, Dimorphite-DL, AmberTools (tleap, antechamber/sqm), ParmEd
+#   analysis: GROMACS (CPU) trajectory tools, gmx_MMPBSA, MDAnalysis
+# The GPU production image (docker/Dockerfile) stays small and contains only GROMACS + run scripts.
+FROM mambaorg/micromamba:2.3.2-ubuntu24.04
+
+COPY --chown=$MAMBA_USER:$MAMBA_USER docker/tools-env.yml /tmp/env.yml
+RUN micromamba install -y -n base -f /tmp/env.yml \
+ && micromamba clean --all --yes
+
+ARG MAMBA_DOCKERFILE_ACTIVATE=1
+RUN pip install --no-cache-dir "gmx_MMPBSA==1.7.0" "dimorphite-dl==2.1.0" \
+ && micromamba env export -n base --explicit > /opt/conda/tools-env.lock.txt \
+ && gmx --version | head -n 3 && tleap -h >/dev/null 2>&1; antechamber -h | head -n 2; \
+    python -c "import rdkit, pdbfixer, openmm, parmed, propka; print('rdkit', rdkit.__version__, 'openmm', openmm.__version__, 'parmed', parmed.__version__)"
+
+WORKDIR /work
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh"]
+CMD ["bash"]

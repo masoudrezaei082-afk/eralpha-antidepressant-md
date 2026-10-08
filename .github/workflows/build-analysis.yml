@@ -1,0 +1,75 @@
+# Builds docker/analysis/Dockerfile (the CPU MM/GBSA image for Salad CPU-only nodes) and pushes it to the existing
+# eralpha-antidepressant-md package under ana-<sha> and ana tags, so it shares the package's visibility. No secrets beyond the job's
+# own GITHUB_TOKEN; Drive and Salad credentials never enter the image.
+name: build-analysis
+
+on:
+  push:
+    branches: [main]
+    paths: [docker/analysis/**, docker/tools-env.lock.txt, analysis/mdana/**, analysis/mmpbsa_*.in,
+            .github/workflows/build-analysis.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: analysis-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Image name
+        id: name
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/eralpha-antidepressant-md" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (load locally for the smoke test)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/analysis/Dockerfile
+          load: true
+          tags: eralpha-ana:ci
+          cache-from: type=gha,scope=analysis
+          cache-to: type=gha,scope=analysis,mode=max
+
+      - name: Smoke test
+        run: |
+          docker run --rm eralpha-ana:ci python -m mdana.stats
+          docker run --rm eralpha-ana:ci python -c "import GMXMMPBSA; print('gmx_MMPBSA', GMXMMPBSA.__version__)"
+          docker run --rm eralpha-ana:ci bash -n /opt/eralpha/bin/run_mmgbsa.sh
+          docker run --rm eralpha-ana:ci mpirun --oversubscribe -np 4 python -c "from mpi4py import MPI; c = MPI.COMM_WORLD; assert c.size == 4"
+          docker run --rm eralpha-ana:ci python -c "
+          from mdana import mmgbsa as M
+          jobs = M.default_jobs(['estradiol_rep1'])
+          for j in jobs: M.write_input(j, '/tmp/x.in')
+          print(len(jobs), 'jobs, inputs ok')"
+          docker inspect -f '{{json .Config.Cmd}}' eralpha-ana:ci | grep -q run_mmgbsa.sh && docker run --rm eralpha-ana:ci bash -c "gmx --version | head -3; which mpirun python rclone"
+
+      - name: Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/analysis/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.name.outputs.image }}:ana-${{ github.sha }}
+            ${{ steps.name.outputs.image }}:ana
+          cache-from: type=gha,scope=analysis
+
+      - name: Summary
+        run: echo "### Image ${{ steps.name.outputs.image }}:ana-${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"

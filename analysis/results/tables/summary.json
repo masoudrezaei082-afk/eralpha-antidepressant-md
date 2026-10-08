@@ -1,0 +1,42 @@
+{
+ "n_replicas_with_metrics": 27,
+ "n_energy_jobs": 96,
+ "rank_agreement": {
+  "gb1_vs_gb2": {
+   "rho": 0.929,
+   "p": 0.0009,
+   "n_systems": 8
+  },
+  "gb2_vs_gb4": {
+   "rho": 0.952,
+   "p": 0.0003,
+   "n_systems": 8
+  },
+  "gb1_vs_gb4": {
+   "rho": 0.881,
+   "p": 0.0039,
+   "n_systems": 8
+  },
+  "gb2_vs_pb2": {
+   "rho": 0.5,
+   "p": 0.207,
+   "n_systems": 8
+  }
+ },
+ "ordering_vs_estradiol": {
+  "decoy": "not resolved",
+  "hnk": "higher",
+  "imipramine": "not resolved",
+  "pape1": "not resolved",
+  "r_fluoxetine": "not resolved",
+  "s_fluoxetine": "not resolved",
+  "s_ketamine": "higher"
+ },
+ "thresholds": {
+  "retention_A": 2.0,
+  "clamp_A": 4.0,
+  "out_of_contact_A": 4.0,
+  "cluster_A": 2.0,
+  "equilibration_ns": 20.0
+ }
+}

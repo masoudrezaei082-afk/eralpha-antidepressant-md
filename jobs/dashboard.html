@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eralpha-antidepressant MD progress</title>
+<!-- Served by `python jobs/submit.py dashboard`; reads only /api/status from that local process. -->
+<style>
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --ink: #1c2330; --mute: #667085; --line: #e3e6eb;
+  --accent: #2f6fde; --equil: #9db8ec; --ok: #1f9d55; --warn: #c27c0e; --bad: #d23f3f; --idle: #98a2b3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --card: #1a2029; --ink: #e6e9ef; --mute: #98a2b3; --line: #2a313c;
+    --accent: #5b8ff0; --equil: #34507f; --ok: #3ccf7a; --warn: #e3a33a; --bad: #f06b6b; --idle: #5d6676;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --card: #1a2029; --ink: #e6e9ef; --mute: #98a2b3; --line: #2a313c;
+  --accent: #5b8ff0; --equil: #34507f; --ok: #3ccf7a; --warn: #e3a33a; --bad: #f06b6b; --idle: #5d6676;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1280px; margin: 0 auto; padding: 20px 16px 40px; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 16px; }
+h1 { font-size: 20px; margin: 0; font-weight: 650; }
+h2 { font-size: 15px; margin: 24px 0 10px; font-weight: 650; }
+.mute { color: var(--mute); }
+.spacer { flex: 1; }
+button { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--line);
+  border-radius: 8px; padding: 5px 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+.pill { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  border: 1px solid currentColor; white-space: nowrap; }
+.s-running { color: var(--accent); } .s-done { color: var(--ok); }
+.s-failed, .s-incomplete { color: var(--bad); } .s-pending, .s-not-queued, .s-stopped, .s-cancelled { color: var(--idle); }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.kpi .label { color: var(--mute); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.kpi .value { font-size: 26px; font-weight: 650; margin: 2px 0; font-variant-numeric: tabular-nums; }
+.kpi .sub { color: var(--mute); font-size: 12.5px; }
+.bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; display: flex; }
+.bar > span { display: block; height: 100%; }
+.bar .eq { background: var(--equil); } .bar .md { background: var(--accent); } .bar.done .md { background: var(--ok); }
+.alerts { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 6px; }
+.alerts li { border-left: 4px solid var(--warn); background: var(--card); padding: 8px 12px; border-radius: 6px; }
+.alerts li.err { border-color: var(--bad); }
+.alerts li.ok { border-color: var(--ok); }
+.systems { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; }
+.sys h3 { margin: 0 0 8px; font-size: 14px; display: flex; gap: 8px; align-items: baseline; }
+.rep { padding: 8px 0; border-top: 1px solid var(--line); display: grid; gap: 4px; }
+.rep:first-of-type { border-top: 0; }
+.rep .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.rep .name { font-weight: 600; min-width: 40px; }
+.rep .meta { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--mute); font-size: 12.5px; }
+.rep .warn { color: var(--warn); font-size: 12.5px; }
+.ck-ok { color: var(--ok); } .ck-bad { color: var(--bad); }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; overflow: hidden; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--mute); font-weight: 600; font-size: 12px; }
+tr:last-child td { border-bottom: 0; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+code { font-size: 12px; }
+footer { margin-top: 28px; color: var(--mute); font-size: 12.5px; }
+@media (max-width: 480px) { .systems { grid-template-columns: 1fr; } .kpi .value { font-size: 22px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>eralpha-antidepressant MD · ERα replicas</h1>
+    <span id="group" class="pill s-stopped">group …</span>
+    <span class="spacer"></span>
+    <span class="mute" id="age">loading…</span>
+    <button id="refresh" type="button" title="Ask the server to re-read Drive, the job queue and Salad now">Refresh now</button>
+    <button id="theme" type="button" title="Light / dark">◐</button>
+  </header>
+
+  <section class="kpis">
+    <div class="card kpi"><div class="label">Overall progress</div><div class="value" id="k-pct">–</div>
+      <div class="bar" id="k-bar"></div><div class="sub" id="k-ns" style="margin-top:6px">–</div></div>
+    <div class="card kpi"><div class="label">Replicas</div><div class="value" id="k-reps">–</div>
+      <div class="sub" id="k-counts">–</div></div>
+    <div class="card kpi"><div class="label">GPUs running</div><div class="value" id="k-gpus">–</div>
+      <div class="sub" id="k-group">–</div></div>
+    <div class="card kpi"><div class="label">Speed (median)</div><div class="value" id="k-speed">–</div>
+      <div class="sub" id="k-fit">–</div></div>
+    <div class="card kpi"><div class="label">Spend (job time)</div><div class="value" id="k-spend">–</div>
+      <div class="bar" id="k-budget"></div><div class="sub" id="k-need" style="margin-top:6px">–</div></div>
+    <div class="card kpi"><div class="label">Time to finish</div><div class="value" id="k-eta">–</div>
+      <div class="sub" id="k-eta-sub">at the current number of GPUs</div></div>
+  </section>
+
+  <ul class="alerts" id="alerts"></ul>
+
+  <h2>Replicas <span class="mute" style="font-weight:400">· light bar = equilibration, dark = production secured on Drive</span></h2>
+  <section class="systems" id="systems"></section>
+
+  <h2>Nodes</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Salad machine</th><th>State</th><th>Ready</th><th class="num">CPU %</th><th class="num">RAM MB</th>
+      <th>GPU</th><th>Replica</th><th>Updated</th></tr></thead>
+    <tbody id="nodes"><tr><td colspan="8" class="mute">no instances</td></tr></tbody>
+  </table></div>
+
+  <footer id="foot">Progress counts only what is on Drive: the last checkpoint that passed validation on the node.
+    A running replica updates every checkpoint (10 min) and at each equilibration stage. Spend counts the time jobs held a GPU;
+    a GPU idling between jobs is billed too.</footer>
+</main>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const cls = (s) => "s-" + String(s || "pending").replace(/\s+/g, "-");
+const f = (x, d = 0) => (x == null || isNaN(x)) ? "–" : Number(x).toFixed(d);
+const gpuName = (g) => String(g || "").replace(/^NVIDIA (GeForce )?/, "");
+let data = null, fetchedAt = 0;
+
+try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+$("theme").onclick = () => {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  const cur = document.documentElement.dataset.theme || (dark ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("theme", next); } catch (e) {}
+};
+
+function bar(eqPct, mdPct, done) {
+  return `<div class="bar${done ? " done" : ""}"><span class="eq" style="width:${eqPct}%"></span>` +
+         `<span class="md" style="width:${mdPct}%"></span></div>`;
+}
+
+function ago(min) {
+  if (min == null) return "–";
+  if (min < 1) return "just now";
+  if (min < 90) return `${Math.round(min)} min ago`;
+  return `${(min / 60).toFixed(1)} h ago`;
+}
+
+function render(d) {
+  const s = d.summary || {};
+  const c = s.counts || {};
+  $("group").className = "pill " + cls(s.group_status);
+  $("group").textContent = "group " + (s.group_status || "?");
+
+  $("k-pct").textContent = f(s.pct, 1) + " %";
+  $("k-bar").innerHTML = `<span class="md" style="width:${Math.min(100, s.pct || 0)}%"></span>`;
+  $("k-ns").textContent = `${f(s.ns_secured, 1)} of ${f(s.ns_total)} ns production secured · ${f(s.length_ns)} ns per replica`;
+  $("k-reps").textContent = `${c.done || 0} / ${s.replicas || 0}`;
+  $("k-counts").textContent = Object.entries(c).sort().map(([k, v]) => `${v} ${k}`).join(" · ") || "–";
+  $("k-gpus").textContent = s.gpus_running ?? "–";
+  $("k-group").textContent = `group target ${s.group_replicas ?? "–"} · ${(s.image || "").split(":").pop() || "no image"}`;
+  $("k-speed").textContent = s.median_ns_per_day ? f(s.median_ns_per_day) + " ns/day" : "not measured";
+  $("k-fit").textContent = s.fit_ns != null ? `budget fits ${f(s.fit_ns)} ns per replica` : "first value about 1 h into production";
+  $("k-spend").textContent = "$" + f(s.spend_usd, 2);
+  const budgetPct = s.budget_usd ? Math.min(100, 100 * (s.spend_usd || 0) / s.budget_usd) : 0;
+  $("k-budget").innerHTML = `<span class="md" style="width:${budgetPct}%"></span>`;
+  $("k-need").textContent = `of $${f(s.budget_usd)} · ${f(s.gpu_hours, 1)} GPU-h` +
+    (s.need_usd != null ? ` · whole run ≈ $${f(s.need_usd, 2)}` : "");
+  $("k-eta").textContent = s.eta_h != null ? (s.eta_h < 48 ? f(s.eta_h, 1) + " h" : f(s.eta_h / 24, 1) + " d") : "–";
+
+  const alerts = (d.errors || []).map((m) => `<li class="err">${esc(m)}</li>`)
+    .concat((d.alerts || []).map((m) => `<li>${esc(m)}</li>`));
+  $("alerts").innerHTML = alerts.length ? alerts.join("") :
+    (d.replicas ? `<li class="ok">No alerts: every running replica checkpointed recently and every checkpoint validated.</li>` : "");
+
+  const bySys = new Map();
+  for (const r of d.replicas || []) {
+    if (!bySys.has(r.system)) bySys.set(r.system, []);
+    bySys.get(r.system).push(r);
+  }
+  const eqTotal = 5.0;
+  $("systems").innerHTML = [...bySys.entries()].map(([sys, reps]) => {
+    const done = reps.filter((r) => r.state === "done").length;
+    return `<div class="card sys"><h3>${esc(sys)} <span class="mute" style="font-weight:400">${esc(reps[0].pose)} · ${done}/${reps.length} done</span></h3>` +
+      reps.map((r) => {
+        const whole = eqTotal + (r.target_ns || 0);
+        const eqPct = whole ? 100 * Math.min(r.pct / 100 * whole, eqTotal) / whole : 0;
+        const mdPct = Math.max(0, r.pct - eqPct);
+        const stage = r.state === "done" ? "complete" :
+          r.stage === "md" ? `production ${f(r.ns, 1)} / ${f(r.target_ns)} ns` :
+          r.stage && r.stage !== "-" ? `${r.stage} (${r.stages_done}/7 stages)` : "not started";
+        const nodes = r.nodes || [];
+        const ck = r.cpt_step ? (r.cpt_md5_ok ? `<span class="ck-ok">✓ checkpoint validated, md5 matches Drive</span>` :
+          `<span class="ck-bad">checkpoint md5 not confirmed</span>`) + (r.cpt_prev ? " · fallback kept" : "") : "";
+        const meta = [
+          r.ns_per_day ? `${f(r.ns_per_day)} ns/day` : "",
+          r.gpu ? esc(gpuName(r.gpu)) + (r.gpu_util != null ? ` ${f(r.gpu_util)}% · ${f(r.gpu_temp)}°C` : "") : "",
+          r.machine ? `node ${esc(r.machine.slice(0, 8))}` : "",
+          nodes.length ? `${nodes.length} node${nodes.length > 1 ? "s" : ""} used` : "",
+          r.cpt_age_min != null ? `checkpoint ${ago(r.cpt_age_min)}` : "",
+          r.progress_age_min != null && r.state !== "done" ? `heard ${ago(r.progress_age_min)}` : "",
+          r.failures ? `${r.failures} failed tr${r.failures > 1 ? "ies" : "y"}` : "",
+          r.jobs > 1 ? `queued ${r.jobs}×` : "",
+        ].filter(Boolean).join("</span><span>");
+        return `<div class="rep"><div class="top"><span class="name">rep${r.rep}</span>` +
+          `<span class="pill ${cls(r.state)}">${esc(r.state)}</span><span>${esc(stage)}</span>` +
+          `<span class="spacer"></span><span class="mute">${f(r.pct, 1)} %</span></div>` +
+          bar(eqPct, mdPct, r.state === "done") +
+          `<div class="meta"><span>${meta}</span></div>` + (ck ? `<div class="meta">${ck}</div>` : "") +
+          (r.alerts || []).map((a) => `<div class="warn">⚠ ${esc(a)}</div>`).join("") + `</div>`;
+      }).join("") + `</div>`;
+  }).join("");
+
+  const inst = d.instances || [];
+  $("nodes").innerHTML = inst.length ? inst.map((i) => `<tr><td><code>${esc(i.machine)}</code></td>` +
+    `<td><span class="pill ${cls(i.state)}">${esc(i.state)}</span></td><td>${i.ready ? "yes" : "no"}</td>` +
+    `<td class="num">${f(i.cpu_percent)}</td><td class="num">${f(i.memory_mb)}</td><td>${esc(gpuName(i.gpu))}</td>` +
+    `<td>${esc(i.replica || (i.pulling_pct != null && i.pulling_pct < 100 ? `pulling image ${f(i.pulling_pct)}%` : "–"))}</td>` +
+    `<td>${esc((i.updated || "").replace("T", " ").slice(0, 19))}</td></tr>`).join("")
+    : `<tr><td colspan="8" class="mute">no instances (the group is stopped or still allocating)</td></tr>`;
+}
+
+function tick() {
+  if (!data || !data.utc) return;
+  const min = (Date.now() - Date.parse(data.utc)) / 60000;
+  const next = Math.max(0, Math.round((data.every_s || 60) - (Date.now() - Date.parse(data.utc)) / 1000));
+  $("age").textContent = `data from ${ago(min)} · re-read in ${next}s · took ${f(data.refresh_s)}s`;
+}
+
+async function poll(force) {
+  try {
+    const r = await fetch("/api/status" + (force ? "?refresh=1" : ""), {cache: "no-store"});
+    const d = await r.json();
+    if (d.loading) { $("age").textContent = "first read of Drive, the job queue and Salad (≈ 30 s)…"; return; }
+    if (!data || d.utc !== data.utc) render(d);
+    data = d; fetchedAt = Date.now(); tick();
+  } catch (e) {
+    $("age").textContent = "dashboard server not reachable: is `submit.py dashboard` running?";
+  }
+}
+$("refresh").onclick = () => { poll(true); $("age").textContent = "re-reading…"; setTimeout(() => poll(false), 30000); };
+poll(false);
+setInterval(() => poll(false), 10000);
+setInterval(tick, 1000);
+</script>
+</body>
+</html>

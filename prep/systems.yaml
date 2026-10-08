@@ -1,0 +1,110 @@
+# Single source of truth for what is simulated. build_system.py, jobs/manifest and docs/methods_text.md
+# are all generated from this file.
+#
+# smiles: the microstate simulated at pH 7.4 (explicit charges, explicit stereo). "from_pose" means no
+#         public record exists and the molecule is perceived from an all-hydrogen pose file instead.
+# poses:  starting structures; `replicas` is how many of the 3 replicas start from each pose (0 = built, not run).
+#   kind autodock -> systems/<dir>/source/autodock_rank1.pdb (AutoDock4 rank-1, polar H only)
+#   kind glide    -> best-scoring pose with this PubChem CID title and the intended stereochemistry, pooled over
+#                    every Glide XP run in systems/_glide_xp/*_pv.maegz (all docked into the same rigid
+#                    5WGD-mod receptor, glide-grid_1). The Induced Fit (IFD) run never returned its poses.
+#   kind crystal  -> HETATM residue from receptor/5wgd_rcsb.pdb chain A
+#   kind file     -> any PDB with all hydrogens
+
+ph: 7.4
+replicas: 3
+temperature_K: 310
+
+systems:
+  apo:
+    ligand: null
+    poses: [{id: apo, kind: none, replicas: 3}]
+
+  estradiol:
+    name: 17beta-estradiol
+    pubchem_cid: 5757
+    smiles: "C[C@]12CC[C@H]3[C@H]([C@@H]1CC[C@@H]2O)CCC4=C3C=CC(=C4)O"
+    charge: 0
+    cip: [R, S, S, S, S]           # sorted CIP labels the built ligand must have
+    note: positive control; crystal ligand of 5WGD
+    poses:
+      - {id: crystal, kind: crystal, resname: EST, replicas: 3}   # all 3 from the crystal pose
+      - {id: glide,   kind: glide, cid: 5757, replicas: 0}   # redocking check only; n = 1 would add no statistics
+
+  pape1:
+    name: PaPE-1
+    pubchem_cid: null
+    smiles: from_pose
+    smiles_source: systems/pape1/source/ligand_input.pdb
+    smiles_perceived: "Cc1cc(-c2ccc3c(c2)CC[C@@H]3O)cc(C)c1O"   # C17H18O2, UCXWFKNKSWDWCD-INIZCTEOSA-N
+    charge: 0
+    cip: [S]
+    note: PaPE-1 was never docked with Glide, so it is the one ligand that starts from AutoDock4
+    poses:
+      - {id: autodock, kind: autodock, dir: pape1, replicas: 3}
+
+  imipramine:
+    name: imipramine
+    pubchem_cid: 3696
+    smiles: "C[NH+](C)CCCN1C2=CC=CC=C2CCC3=CC=CC=C31"
+    charge: 1
+    cip: []           # sorted CIP labels the built ligand must have
+    note: tertiary amine pKa 9.5 -> >99% protonated at pH 7.4
+    poses:
+      - {id: glide, kind: glide, cid: 3696, replicas: 3}
+
+  s_ketamine:
+    name: (S)-ketamine (esketamine)
+    pubchem_cid: 182137
+    smiles: "C[NH2+][C@@]1(CCCCC1=O)C2=CC=CC=C2Cl"
+    charge: 1
+    cip: [S]           # sorted CIP labels the built ligand must have
+    note: amine pKa 7.5 -> protonated form is the majority microstate at pH 7.4
+    poses:
+      - {id: glide, kind: glide, cid: 3821, replicas: 3}
+
+  r_fluoxetine:
+    name: (R)-fluoxetine
+    pubchem_cid: 1548970
+    smiles: "C[NH2+]CC[C@H](C1=CC=CC=C1)OC2=CC=C(C=C2)C(F)(F)F"
+    charge: 1
+    cip: [R]           # sorted CIP labels the built ligand must have
+    note: secondary amine pKa 9.8; clinical fluoxetine is racemic, so both enantiomers are simulated
+    poses:
+      - {id: glide, kind: glide, cid: 3386, replicas: 3}
+
+  s_fluoxetine:
+    name: (S)-fluoxetine
+    pubchem_cid: 1548968
+    smiles: "C[NH2+]CC[C@@H](C1=CC=CC=C1)OC2=CC=C(C=C2)C(F)(F)F"
+    charge: 1
+    cip: [S]           # sorted CIP labels the built ligand must have
+    poses:
+      - {id: glide, kind: glide, cid: 3386, replicas: 3}
+
+  hnk:
+    name: (2R,6R)-hydroxynorketamine
+    pubchem_cid: 89504167      # fully specified record; the Glide run used CID 137795569 (C6 unspecified)
+    smiles: "C1C[C@H](C(=O)[C@@](C1)(C2=CC=CC=C2Cl)[NH3+])O"
+    charge: 1
+    cip: [R, R]           # sorted CIP labels the built ligand must have
+    note: primary amine, protonated at pH 7.4 (same treatment as ketamine)
+    poses:
+      - {id: glide, kind: glide, cid: 137795569, replicas: 3}
+
+  decoy:
+    name: "decoy (negative control, DUD-E ESR1): N-(3,3-dimethylbutan-2-yl)-2-[4-methoxy-3-(trifluoromethyl)benzoyl]-2,8-diazaspiro[4.5]decane-4-carboxamide"
+    pubchem_cid: 44748165        # identity perceived from the pose (C24H34F3N3O3); stereo as in the pose
+    source: >-
+      DUD-E ESR1 decoy set (Mysinger et al. 2012), record 231 of dude.docking.org/targets/esr1/decoys_final.sdf.gz
+      (sha256 de7c74313a3247dc264f…), ZINC39684576, InChIKey YYCKZXFMNKYSSA-QAPCUYQASA-O: identical
+      structure, stereo and protonation to the supplied pose. DUD-E decoys are property-matched putative
+      non-binders, so this is a negative control, not a confirmed non-binder.
+    smiles: from_pose
+    smiles_source: systems/decoy/source/pose_biovia.pdb
+    smiles_perceived: "COc1ccc(C(=O)N2C[C@@H](C(=O)N[C@H](C)C(C)(C)C)C3(CC[NH2+]CC3)C2)cc1C(F)(F)F"
+    charge: 1
+    cip: [R, S]
+    note: piperidine NH protonated (+1) as in the supplied pose
+    poses:
+      - {id: biovia, kind: file, path: systems/decoy/source/pose_biovia.pdb, replicas: 3}

@@ -1,0 +1,102 @@
+source: "PDB 5WGD (RCSB download, 1.80 \xC5, ER\u03B1 LBD Y537S + estradiol + SRC2 peptides)"
+src2_peptide:
+  chain: E
+  atoms_in_contact_with_chain_A:
+    E: 43
+    F: 0
+  sequence: ACE-HKILHKLLQDS-NH2
+loop_graft:
+  residues: 461-472
+  source: receptor/swissmodel_Y537S_input.pdb
+  junction_C_N_A:
+  - 1.31
+  - 1.5
+pdbfixer:
+  mutation: S537Y (reverts the engineered Y537S to wild type)
+  caps_chain_A: ACE before Leu308, NME after His547
+  missing_heavy_atoms_rebuilt:
+    A:SER309:
+    - OG
+    A:LEU310:
+    - CG
+    - CD1
+    - CD2
+    A:ARG335:
+    - CG
+    - CD
+    - NE
+    - CZ
+    - NH1
+    - NH2
+    A:LYS362:
+    - CE
+    - NZ
+    A:GLU397:
+    - CG
+    - CD
+    - OE1
+    - OE2
+    A:GLU419:
+    - CG
+    - CD
+    - OE1
+    - OE2
+    A:GLU423:
+    - CG
+    - CD
+    - OE1
+    - OE2
+    A:MET437:
+    - CG
+    - SD
+    - CE
+    A:TYR459:
+    - CD1
+    - CE1
+    - OH
+    A:ASP473:
+    - CG
+    - OD1
+    - OD2
+    A:LYS492:
+    - CG
+    - CD
+    - CE
+    - NZ
+    A:TYR537:
+    - CG
+    - CD1
+    - CE1
+    - CZ
+    - OH
+    - CE2
+    - CD2
+    E:ASP11:
+    - OD2
+protonation:
+  method: pdb2pqr 3.6 + PROPKA 3.5, pH 7.4, H-bond network optimisation
+  estradiol_included_as_ligand: true
+  histidines:
+    A:HIS356: HID
+    A:HIS373: HID
+    A:HIS377: HIE
+    A:HIS398: HID
+    A:HIS474: HIE
+    A:HIS476: HIE
+    A:HIS488: HIE
+    A:HIS501: HID
+    A:HIS513: HID
+    A:HIS516: HID
+    A:HIS524: HIE
+    A:HIS547: HID
+    E:HIS2: HID
+    E:HIS6: HID
+  other_non_default_states: none
+  his524_N_to_estradiol_O17_A:
+    ND1: 2.82
+    NE2: 4.8
+  his524_state: HIE
+output:
+  file: receptor/receptor_wt_src2.pdb
+  chain_A: ACE-308..547-NME
+  heavy_atoms: 2020

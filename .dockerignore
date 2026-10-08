@@ -1,0 +1,7 @@
+# Build context: only what docker/Dockerfile copies (never the manuscript, poses or secrets)
+*
+!docker/run_replica.sh
+!docker/benchmark.sh
+!docker/job_server.py
+!docker/queue_entry.sh
+!mdp/

@@ -1,0 +1,13 @@
+ Match: read scoring matrix.
+ Match: assigning 241 x 228 pairwise scores.
+ MatchAlign: aligning residues (241 vs 228)...
+ MatchAlign: score 1160.500
+ ExecutiveAlign: 236 atoms aligned.
+ ExecutiveRMS: 4 atoms rejected during cycle 1 (RMSD=0.09).
+ Executive: RMSD =    0.084 (232 to 232 atoms)
+ Oligo-State
+Monomer
+GMQE
+0.84
+QMEANDisCo Global:
+0.85 ± 0.05
